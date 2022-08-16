@@ -10,9 +10,9 @@ def open_and_read_file(file_path):
     the file's contents as one string of text.
     """
 
-    # your code goes here
+    text = open(file_path).read()
 
-    return 'Contents of your file as one long string'
+    return text
 
 
 def make_chains(text_string):
@@ -41,8 +41,26 @@ def make_chains(text_string):
     """
 
     chains = {}
+    #take text string and split on spaces
+    words = text_string.split()
+    #loop through words using enumerate so we can reference the next word
+    for i, word in enumerate(words):
+        #try this block for error
+        try:
+            # if the tuple of the word and the next word is already a key
+            if (word, words[i + 1]) in chains.keys():
+                #add the value to the list of words
+                chains[(word, words[i + 1])].append(words[i + 2])
+            else:
+                #set value to the next word in text
+                chains[(word, words[i + 1])] = [words[i + 2]]
+        #except if there is index error
+        except IndexError:
+            break
 
-    # your code goes here
+    print(chains)
+
+
 
     return chains
 
