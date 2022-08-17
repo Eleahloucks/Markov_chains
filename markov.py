@@ -2,6 +2,7 @@
 
 from random import choice
 import sys
+N = 5
 
 def open_and_read_file():
     """Take file path as string; return text as string.
@@ -51,27 +52,51 @@ def make_chains(text_string):
     for i, word in enumerate(words):
         #try this block for error
         try:
+            key_list = []
+            #loop through n which is three in this case
+            for j in range(N):
+                try:
+                    #create key lists by adding j(0, 1 or 2) to i
+                    #so we get three strings in our tuple in this case
+                    key_list.append(words[i + j])
+                #throw index error and stop bc we are at the end
+                except IndexError:
+                    break
+            #only add tuples that are the length of N
+            if len(key_list) == N:
+                keys = tuple(key_list)
+            else:
+                #break to avoid duplicating the last tuple N times
+                break
+
             # if the tuple of the word and the next word is already a key
-            if (word, words[i + 1]) in chains.keys():
+            if keys in chains.keys():
                 #add the value to the list of words
-                chains[(word, words[i + 1])].append(words[i + 2])
+                chains[keys].append(words[i + N])
             else:
                 #set value to the next word in text
-                chains[(word, words[i + 1])] = [words[i + 2]]
+                chains[keys] = [words[i + N]]
         #except if there is index error
         except IndexError:
             break
-
     return chains
 
 
 def make_text(chains):
     """Return text from chains."""
+    words = []
 
-    #create  var that chooses random key
     working_key = choice(list(chains.keys()))
-    #add key words to words
-    words = [working_key[0], working_key[1]]
+    #if the first letter is lowercase keep generating more options
+    while working_key[0].islower():
+        #create  var that chooses random key
+        working_key = choice(list(chains.keys()))
+
+    #looping through indexs of N
+    for i in range(N):
+        #adding each index of our tuple in range N to words list
+        #aka add all of our tuple to words list
+        words.append(working_key[i])
     #start while true loop because we dont many working keys there will be
     while True:
         try:
@@ -79,25 +104,36 @@ def make_text(chains):
             next = choice(chains[working_key])
             #add word to words list
             words.append(next)
-            #reassign working key to next index key in tuple with next value from list
-            working_key = (working_key[1], next)
+            working_list = []
+            #start at 1 bc we want all of the words in working key except the first one
+            for index in range(1, N):
+                #add each str in the working key except for the first string
+                #we want new working key to stay the length of N
+                working_list.append(working_key[index])
+            #adds our new random word from working key at the end
+            working_list.append(next)
+            #change to tuple
+            working_key = tuple(working_list)
         #stop loop when there is a key error because we have reached the end of our text
         except KeyError:
             break
 
     #return words with spaces in between each
     return ' '.join(words)
+#if we are running directly and not being imported
+#if we wrote another py file and imported parkov.py
+#we dont want to run the tests below because we already have run these tests
+#and it could output things dont want to output in our new file
+if __name__ == '__main__':
+    input_path = 'green-eggs.txt'
 
+    # Open the file and turn it into one long string
+    input_text = open_and_read_file()
 
-input_path = 'green-eggs.txt'
+    # Get a Markov chain
+    chains = make_chains(input_text)
 
-# Open the file and turn it into one long string
-input_text = open_and_read_file()
+    # Produce random text
+    random_text = make_text(chains)
 
-# Get a Markov chain
-chains = make_chains(input_text)
-
-# Produce random text
-random_text = make_text(chains)
-
-print(random_text)
+    print(random_text)
